@@ -1,6 +1,6 @@
-using System.Xml.Schema;
 // See https://aka.ms/new-console-template for more information
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -11,35 +11,152 @@ namespace Game
     {
         static void Main(string[] args)
         {
+            // Clear console screen
+            Console.Clear();
+            // Make the texts green
+            Console.ForegroundColor = ConsoleColor.Green;
+            bool endGame = false;
+            void quit() 
+            {
+                endGame = true;
+            }
+            
             // Create characters
-            Console.WriteLine("Choose a name for your wizard:");
+            Console.WriteLine("Choose the first name for your wizard:");
             string? wizName = Console.ReadLine();
             Wizard wizard = new Wizard(wizName);
 
-            Console.WriteLine("Choose a name for your knight:");
+            Console.WriteLine("Choose the first name for your knight:");
             string? knightName = Console.ReadLine();
             Knight knight = new Knight(knightName);
 
-            Console.WriteLine("Choose a name for your hunter:");
+            Console.WriteLine("Choose the first name for your hunter:");
             string? huntName = Console.ReadLine();
             Hunter hunter = new Hunter(huntName);
+            
+            // Create inventory for this instance of the game.
+            Inventory inventory = new Inventory();
 
-            void stats()
+
+            // Function for seeing team stats
+            void teamStats()
             {
                 wizard.stats();
                 knight.stats();
                 hunter.stats();
             }
+            
 
-            wizard.castSpell();
-            stats();
-    
-            Console.ReadKey();
+            // Creates a list of possible commands
+            
+            List<string> cmds = new List<string>();
+            // Add quit command here
+            cmds.Add("quit");       //1
+            // General game commands
+            cmds.Add("stats");      //2
+            cmds.Add("rest");       //3
+            cmds.Add("repair");     //4
+            cmds.Add("hunt");       //5
+            cmds.Add("heal");       //6
+            cmds.Add("attack");     //7
+            cmds.Add("inventory");  //8
+
+            // Function for executing each command
+            void execute(int action)
+            {
+                switch (action)
+                {
+                    default: 
+                        Console.WriteLine("Error: Invalid input please try again.");
+                        break;
+                    // Ends game loop
+                    case 1:
+                        quit();
+                        break;
+                    case 2:
+                        teamStats();
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    case 5:
+                        break;
+                    case 6:
+                        wizard.executeSpell(1);
+                        break;
+                    case 7:
+                        break;
+                    case 8:
+                        inventory.checkInventory();
+                        break;
+
+                }
+            }
+
+            // Prompts player to proceed the game
+            void prompt()
+            {
+                
+                Console.WriteLine("What would you like to do?");
+                // Prints out the possible commands
+                for (int i = 0; i < cmds.Count; i++)
+                {
+                    Console.WriteLine(i + 1 + ". " + cmds[i]);
+                }
+                Console.Write("> ");
+                
+                string? input = Console.ReadLine();
+                if (int.TryParse(input, out int value))
+                {
+                    int action = Convert.ToInt32(input);
+                    execute(action);
+                } else 
+                {
+                    Console.WriteLine("Error: Invalid input please try again.");
+                }
+                // Waits until enter key is pressed
+                Console.Write("Press <Enter> to continue... ");
+                while (Console.ReadKey().Key != ConsoleKey.Enter) {}
+                Console.Clear();
+
+            }
+
+            // Start game loop
+            while (endGame != true)
+            {
+                prompt();
+            }
+            //Console.WriteLine("The End");
+
+            // Lmao
+            Console.WriteLine("################         #####      #####        ################");                
+            Console.WriteLine("################         #####      #####        ################");                
+            Console.WriteLine("      ####               #####      #####        ####            ");                
+            Console.WriteLine("      ####               #####      #####        ####            ");                
+            Console.WriteLine("      ####               ################        ########        ");                
+            Console.WriteLine("      ####               ################        ########        ");                
+            Console.WriteLine("      ####               #####      #####        ####            ");                
+            Console.WriteLine("      ####               #####      #####        ####            ");                
+            Console.WriteLine("      ####               #####      #####        ################");                
+            Console.WriteLine("      ####               #####      #####        ################");                
+            Console.WriteLine();
+            Console.WriteLine("    ################        ######         ###       #######");
+            Console.WriteLine("    ################        #######        ###       ###   ###");
+            Console.WriteLine("    ####                    ###  ###       ###       ###     ###");
+            Console.WriteLine("    ####                    ###   ###      ###       ###      ###");
+            Console.WriteLine("    ########                ###    ###     ###       ###      ###");
+            Console.WriteLine("    ########                ###     ###    ###       ###      ###");
+            Console.WriteLine("    ####                    ###      ###   ###       ###      ###");
+            Console.WriteLine("    ####                    ###       ###  ###       ###      ###");
+            Console.WriteLine("    ################        ###        #######       ###    ###");
+            Console.WriteLine("    ################        ###         ######       ########");
+
         }
 
     }
 
-        // User chooses the class for the main character
+        
     class Wizard
     {
 
@@ -60,44 +177,64 @@ namespace Game
             hp = rng.Next(maxHP - 20, maxHP);
             exp = 0f;
             spells.Add("frost byte");
-            spells.Add("Heal");
+            spells.Add("heal");
             
             
         }
-        public void castSpell()
-        {
-            Console.WriteLine("Choose a spell to cast: ");
-            for (int i = 0; i < spells.Count; i++)
-            {
-                Console.WriteLine("- " + spells[i]);
-            }
-            Console.WriteLine();
-            string? input = Console.ReadLine();
-            
-            if (spells.Contains(input.ToLower()))
-            {
-                int index = spells.IndexOf(input.ToLower());
-                switch (index)
-                {
-                    case 0:
-                        break;
-                    case 1:
 
-                        break;
-                }
-                Console.WriteLine(name + " casts " + spells[index] + "!");
-                spellSlot--;
-                Console.WriteLine(name + " has " + spellSlot + " spell slots remaining.");
-            } else 
+        public void castSpell(string spellName)
+        {   
+            if (spellName != "")
             {
-                Console.WriteLine("Error: Invalid input\n Please try again.");
-                castSpell();
+                executeSpell(spells.IndexOf(spellName));
+            } else
+            {
+                Console.WriteLine("Choose a spell to cast: ");
+                for (int i = 0; i < spells.Count; i++)
+                {
+                    Console.WriteLine(i + 1 + ". " + spells[i]);
+                }
+                Console.Write("> ");
+                int input = Convert.ToInt32(Console.ReadLine());
+                executeSpell(input);
+            }
+            
+        }
+        // Decreases the spell slot number and executes the dialogue.
+        private void decSpellSlot(int spellIndex)
+        {
+            spellSlot--;
+            Console.WriteLine(name + " casts " + spells[spellIndex] + "!");
+            Console.WriteLine(name + " has " + spellSlot + " spell slots remaining."); 
+        }
+        public void executeSpell(int spellIndex)
+        {
+            spellIndex--;
+            
+            switch (spellIndex)
+            {
+                // Regardless of the spot, dafault runs last.
+                // If input is invalid, default runs.
+                default: 
+                    Console.WriteLine("Error: Invalid input \nPlease try again.");
+                    break;
+                case 0:
+                    decSpellSlot(spellIndex);
+                    break;
+                case 1:
+
+                    decSpellSlot(spellIndex);
+                    break;
             }
         }
 
         public void stats()
         {
-
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine(name + ": ");
+            Console.WriteLine("-" + hp + "/" + maxHP + " health");
+            Console.WriteLine("-" + spellSlot + " spells remaining");
+            Console.WriteLine("-" + exp + " experiences");
         }
     }
 
@@ -119,7 +256,10 @@ namespace Game
 
         public void stats()
         {
-
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine(name + ": ");
+            Console.WriteLine("-" + hp + "/" + maxHP + " health");
+            Console.WriteLine("-" + exp + " experiences");
         }
     }
 
@@ -141,7 +281,92 @@ namespace Game
 
         public void stats()
         {
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine(name + ": ");
+            Console.WriteLine("-" + hp + "/" + maxHP + " health");
+            Console.WriteLine("-" + exp + " experiences");
+        }
+    }
+    // Class to store items in inventory.
+    class Inventory 
+    {
+        private int capacity;
+        public int bandages;
+        public int toolKit;
+        public int food;
+        public int money;
+        List<string> items = new List<string>();
+        object[,] uniqueItems = new object[5, 2];
+        int[] randNum = new int[3];
+        Random rand = new Random();
 
+        // Determine which special items the user begins with.
+        void startItem()
+        {
+            int num;
+            for (int i = 0; i < 3; i++)
+            {
+                num = rand.Next(0, 5);
+                randNum[i] = num;
+            }
+            Array.Sort(randNum);
+        }
+        void setToZero()
+        {
+
+        }
+
+        
+        // Instantiate an inventory
+        public Inventory()
+        {
+            
+            capacity = 1024;
+            bandages = rand.Next((capacity / 4) - 64, (capacity / 4) + 1);
+            toolKit = rand.Next((capacity / 4) - 64, (capacity / 4) + 1);
+            food = rand.Next((capacity / 4) - 64, (capacity / 4) + 1);
+            money = rand.Next(500, 1001);
+            // Creates unique items that starts in the inventory.
+            uniqueItems[0, 0] = "elk skin";
+            uniqueItems[1, 0] = "beads";
+            uniqueItems[2, 0] = "gems";
+            uniqueItems[3, 0] = "potion";
+            uniqueItems[4, 0] = "katana";
+            // Default the numbers to 0
+            
+            startItem();
+            for (int i = 0; i < randNum.Length; i++)
+            {
+                uniqueItems[randNum[i], 1] = rand.Next(1, 10);
+            }
+        }
+
+        // Check the inventory upon request
+        public void checkInventory()
+        {
+            Console.WriteLine("The inventory capacity is " + capacity + " kgs");
+            Console.WriteLine("You have these rare items: ");
+            for (int i = 0; i < uniqueItems.Length / 2; i++)
+            {
+                Console.WriteLine(uniqueItems[i, 0] + ": " + uniqueItems[i, 1]);
+            }
+            Console.WriteLine("You have these essential items: ");
+            Console.WriteLine(bandages + " bandages");
+            Console.WriteLine(toolKit + " tool kits");
+            Console.WriteLine(food + " foods");
+            Console.WriteLine(money + " quids");
+            Console.WriteLine("You have these items: ");
+            if (items.Count() != 0)
+            {
+                for (int i = 0; i < items.Count(); i++)
+                {
+                    Console.WriteLine("-" + items[i]);
+                }
+            } else
+            {
+                Console.WriteLine("You don't have any common items");
+            }
+            Console.WriteLine("--------------------------------");
         }
     }
 }
