@@ -33,10 +33,24 @@ namespace Game
             Console.WriteLine("Choose the first name for your hunter:");
             string? huntName = Console.ReadLine();
             Hunter hunter = new Hunter(huntName);
+
+
+            // Story
+            // The player is a commander of a small team of wizard, knight, and hunter.
+            // The player gets to control the team.
+            // The objective is to reach an base that needs help.
+            // The secondary objective is to survive x days.
+            // The story is set in an alternate universe where magic is real.
+            // The player can only order his team to do certain things. 
+            // The player cannot interact with the world on his own.
+
+
+
             
             // Create inventory for this instance of the game.
             Inventory inventory = new Inventory();
 
+            Random rand = new Random();
 
             // Function for seeing team stats
             void teamStats()
@@ -44,6 +58,14 @@ namespace Game
                 wizard.stats();
                 knight.stats();
                 hunter.stats();
+            }
+
+            // Heals
+            void heal()
+            {
+                wizard.heal();
+                knight.heal();
+                hunter.heal();
             }
             
 
@@ -69,8 +91,8 @@ namespace Game
                     default: 
                         Console.WriteLine("Error: Invalid input please try again.");
                         break;
-                    // Ends game loop
-                    case 1:
+                    
+                    case 1: // Ends game loop
                         quit();
                         break;
                     case 2:
@@ -84,6 +106,7 @@ namespace Game
                         break;
                     case 6:
                         wizard.executeSpell(1);
+                        heal();
                         break;
                     case 7:
                         break;
@@ -163,20 +186,21 @@ namespace Game
         public string name;
         public int maxHP;
         public int hp;
-        private float exp;
+        private double exp;
 
-        private int spellSlot = 2;
+        private int spellSlot;
         
         public List<string> spells = new List<string>();
+        Random rng = new Random();
 
         public Wizard(string _name)
         {
             name = _name;
             maxHP = 75;
-            Random rng = new Random();
             hp = rng.Next(maxHP - 20, maxHP);
             exp = 0f;
-            spells.Add("frost byte");
+            spellSlot = 2;
+            spells.Add("frost bite");
             spells.Add("heal");
             
             
@@ -209,22 +233,27 @@ namespace Game
         }
         public void executeSpell(int spellIndex)
         {
+            exp += Math.Round(rng.NextDouble(), 1);
             spellIndex--;
-            
-            switch (spellIndex)
+            // Checks if the wizard has enough spell slots.
+            if (spellSlot > 0) {
+                switch (spellIndex)
+                {
+                    // Regardless of the spot, dafault runs last.
+                    // If input is invalid, default runs.
+                    default: 
+                        Console.WriteLine("Error: Invalid input \nPlease try again.");
+                        break;
+                    case 0: // Frost bite
+                        decSpellSlot(spellIndex + 1);
+                        break;
+                    case 1: // Heal
+                        decSpellSlot(spellIndex + 1);
+                        break;
+                }
+            } else
             {
-                // Regardless of the spot, dafault runs last.
-                // If input is invalid, default runs.
-                default: 
-                    Console.WriteLine("Error: Invalid input \nPlease try again.");
-                    break;
-                case 0:
-                    decSpellSlot(spellIndex);
-                    break;
-                case 1:
-
-                    decSpellSlot(spellIndex);
-                    break;
+                Console.WriteLine(name + " is out of spells to use!");
             }
         }
 
@@ -236,6 +265,16 @@ namespace Game
             Console.WriteLine("-" + spellSlot + " spells remaining");
             Console.WriteLine("-" + exp + " experiences");
         }
+
+        public void heal()
+        {
+            int healAmount = rng.Next(10, 15);
+            hp += healAmount;
+            if (hp > maxHP)
+            {
+                hp = maxHP;
+            }
+        }
     }
 
     class Knight
@@ -244,12 +283,12 @@ namespace Game
         public int maxHP;
         public int hp;
         private float exp;
+        Random rng = new Random();
 
         public Knight(string _name)
         {
             name = _name;
             maxHP = 100;
-            Random rng = new Random();
             hp = rng.Next(maxHP - 20, maxHP);
             exp = 0f;
         }
@@ -261,6 +300,17 @@ namespace Game
             Console.WriteLine("-" + hp + "/" + maxHP + " health");
             Console.WriteLine("-" + exp + " experiences");
         }
+
+        public void heal()
+        {
+            int healAmount = rng.Next(10, 15);
+            hp += healAmount;
+            if (hp > maxHP)
+            {
+                hp = maxHP;
+            }
+        }
+
     }
 
     class Hunter
@@ -269,12 +319,12 @@ namespace Game
         public int maxHP;
         public int hp;
         private float exp;
+        Random rng = new Random();
         
         public Hunter(string _name)
         {
             name = _name;
             maxHP = 80;
-            Random rng = new Random();
             hp = rng.Next(maxHP - 20, maxHP);
             exp = 0f;
         }
@@ -286,6 +336,17 @@ namespace Game
             Console.WriteLine("-" + hp + "/" + maxHP + " health");
             Console.WriteLine("-" + exp + " experiences");
         }
+
+        public void heal()
+        {
+            int healAmount = rng.Next(10, 15);
+            hp += healAmount;
+            if (hp > maxHP)
+            {
+                hp = maxHP;
+            }
+        }
+        
     }
     // Class to store items in inventory.
     class Inventory 
